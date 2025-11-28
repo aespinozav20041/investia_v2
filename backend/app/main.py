@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from .api.v1 import auth, users, plans, signals, trades
+from .api.v1 import api_router
 from .core.config import get_settings
 from .core.logging import setup_logging
 
@@ -18,7 +18,7 @@ app.add_middleware(
     allow_origins=[
         "https://investia.live",
         "https://www.investia.live",
-        "https://api.investia.live"
+        "https://api.investia.live",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -36,9 +36,4 @@ async def generic_exception_handler(request: Request, exc: Exception):  # type: 
 async def healthcheck():
     return {"status": "ok", "env": settings.ENVIRONMENT}
 
-
-app.include_router(auth.router, prefix="/api/v1")
-app.include_router(users.router, prefix="/api/v1")
-app.include_router(plans.router, prefix="/api/v1")
-app.include_router(signals.router, prefix="/api/v1")
-app.include_router(trades.router, prefix="/api/v1")
+app.include_router(api_router, prefix="/api/v1")
