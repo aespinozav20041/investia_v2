@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import List, Optional
 
-from pydantic import AnyHttpUrl, Field
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -27,7 +27,11 @@ class Settings(BaseSettings):
     REDIS_DB: int = 0
     REDIS_SSL: bool = False
 
-    ALLOWED_ORIGINS: List[AnyHttpUrl | str] = Field(default_factory=list)
+    ALLOWED_ORIGINS: List[str] = [
+        "https://investia.live",
+        "https://www.investia.live",
+        "https://api.investia.live"
+    ]
 
     ENABLE_LIVE_TRADING: bool = False
     ENABLE_PAPER_TRADING: bool = True
@@ -35,7 +39,7 @@ class Settings(BaseSettings):
 
     ALPACA_API_KEY: Optional[str] = None
     ALPACA_API_SECRET: Optional[str] = None
-    ALPACA_BASE_URL: Optional[AnyHttpUrl | str] = None
+    ALPACA_BASE_URL: Optional[str] = None
 
     MLFLOW_TRACKING_URI: Optional[str] = None
     DEFAULT_MODEL_URI_FREEMIUM: Optional[str] = None
