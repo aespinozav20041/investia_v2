@@ -19,6 +19,8 @@ app.add_middleware(
         "https://investia.live",
         "https://www.investia.live",
         "https://api.investia.live",
+        "https://investia-v2-frontend-fq3l-dig0jw9sq-adrians-projects-0775393a.vercel.app",
+        "http://localhost:3000"
     ],
     allow_credentials=True,
     allow_methods=["*"],
