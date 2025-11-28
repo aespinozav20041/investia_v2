@@ -1,0 +1,17 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+asyncpg
+alembic
+pydantic
+pydantic-settings
+python-jose[cryptography]
+passlib[bcrypt]
+redis
+httpx
+numpy
+pandas
+scikit-learn
+mlflow
+prefect
+python-dotenv
