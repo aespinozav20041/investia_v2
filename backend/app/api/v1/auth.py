@@ -27,7 +27,7 @@ class Token(BaseModel):
 class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
-    plan_code: str
+    plan_code: str | None = None
 
 
 class LoginRequest(BaseModel):
@@ -40,6 +40,14 @@ class UserResponse(BaseModel):
     email: EmailStr
     plan_code: str
     created_at: datetime
+
+
+class RegisterResponse(BaseModel):
+    id: str
+    email: EmailStr
+    plan_code: str
+    created_at: datetime
+    message: str = "User registered successfully."
 
 
 async def get_current_user(db: AsyncSession = Depends(get_db), token: str = Depends(oauth2_scheme)) -> User:
@@ -63,13 +71,18 @@ async def get_current_user(db: AsyncSession = Depends(get_db), token: str = Depe
     return user
 
 
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
 async def register(payload: RegisterRequest, db: AsyncSession = Depends(get_db)):
     try:
-        user = await create_user(db, payload.email, payload.password, payload.plan_code)
+        user, resolved_plan_code = await create_user(db, payload.email, payload.password, payload.plan_code)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-    return UserResponse(id=str(user.id), email=user.email, plan_code=payload.plan_code, created_at=user.created_at)
+    return RegisterResponse(
+        id=str(user.id),
+        email=user.email,
+        plan_code=resolved_plan_code,
+        created_at=user.created_at,
+    )
 
 
 @router.post("/login", response_model=Token)
