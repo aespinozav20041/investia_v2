@@ -7,7 +7,7 @@ export default function HomePage() {
         <div className="flex flex-col gap-12 lg:flex-row lg:items-center">
           <div className="flex-1 space-y-6">
             <p className="inline-flex items-center rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-sm text-emerald-300">
-              Live paper-trading bot • Chat-native explanations
+              Live paper-trading bot - Chat-native explanations
             </p>
             <h1 className="text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
               INVESTIA helps you understand every move your trading bot makes.

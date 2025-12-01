@@ -26,7 +26,7 @@ def load_existing_model(uri: str) -> Tuple[xgb.XGBClassifier, list[str]]:
     payload = joblib.load(uri)
     if isinstance(payload, dict) and "model" in payload:
         return payload["model"], payload.get("feature_order", [])
-    return payload, payload.get("feature_order", [])
+    return payload, payload["feature_order"] if isinstance(payload, dict) and "feature_order" in payload else []
 
 
 async def incremental_update(register: bool = True) -> Tuple[Path, dict]:

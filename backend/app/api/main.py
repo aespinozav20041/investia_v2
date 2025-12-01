@@ -7,7 +7,7 @@ from jose import JWTError
 from sqlalchemy import select
 
 from app import models as orm_models  # noqa: F401  ensures models are imported for metadata
-from app.api.routes import auth, brokers, chat, dashboard, models as model_routes, plans, portfolio, trading
+from app.api.routes import auth, billing, brokers, chat, dashboard, models as model_routes, plans, portfolio, trading
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal, init_models
 from app.core.security import decode_token
@@ -34,6 +34,7 @@ api_router.include_router(chat.router)
 api_router.include_router(plans.router)
 api_router.include_router(model_routes.router)
 api_router.include_router(trading.router)
+api_router.include_router(billing.router)
 app.include_router(api_router)
 
 
@@ -69,7 +70,16 @@ async def paper_stream(websocket: WebSocket):
                 trade = event["trade"]
                 if user:
                     await trading_engine.record_trade(db, trade)
-                await websocket.send_json({"type": "trade", "payload": trade, "signal": event["signal"]})
+                trade_event = {
+                    "id": event["event_id"],
+                    "symbol": trade["symbol"],
+                    "side": trade["side"],
+                    "qty": trade["quantity"],
+                    "price": trade["price"],
+                    "pnl": trade["pnl"],
+                    "timestamp": trade["created_at"].isoformat() if hasattr(trade["created_at"], "isoformat") else str(trade["created_at"]),
+                }
+                await websocket.send_json({"type": "trade", "payload": trade_event, "signal": event["signal"]})
                 await asyncio.sleep(3)
         except WebSocketDisconnect:
             return

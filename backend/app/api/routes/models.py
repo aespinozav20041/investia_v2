@@ -3,14 +3,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api import deps
 from app.services.ml_model_service import ml_model_service
-from ml.model_registry import list_all_versions, register_model_version, get_latest_model_uri
+from ml.model_registry import get_latest_model_uri, list_model_versions, register_model_version
 
 router = APIRouter(prefix="/models", tags=["models"])
 
 
 @router.get("/latest")
-async def latest_models(db: AsyncSession = Depends(deps.get_db)):
-    versions = await list_all_versions(session=db)
+async def latest_models(plan: str | None = Query(None), db: AsyncSession = Depends(deps.get_db)):
+    versions = await list_model_versions(plan, db_session=db)
     latest = {}
     for version in versions:
         if version.plan not in latest:
@@ -25,14 +25,14 @@ async def latest_models(db: AsyncSession = Depends(deps.get_db)):
 
 @router.get("/test")
 async def test_model(plan: str = Query("free", pattern="^(free|pro|enterprise)$"), db: AsyncSession = Depends(deps.get_db)):
-    uri = await get_latest_model_uri(plan, session=db)
+    uri = await get_latest_model_uri(plan, db_session=db)
     if not uri:
         raise HTTPException(status_code=404, detail="No model registered for plan")
     dummy_features = {
-        "return_1d": 0.01,
-        "volatility_5": 0.02,
-        "volatility_10": 0.03,
-        "volatility_20": 0.04,
+        "log_return": 0.01,
+        "volatility_10": 0.02,
+        "volatility_20": 0.03,
+        "volatility_50": 0.04,
         "ma_ratio": 1.01,
         "rsi_14": 55,
         "volume_zscore": 0.2,
@@ -40,6 +40,7 @@ async def test_model(plan: str = Query("free", pattern="^(free|pro|enterprise)$"
         "sentiment_score": 0.1,
         "orderbook_depth": 0.5,
         "quant_factor": 0.5,
+        "price": 100.0,
     }
     signal = await ml_model_service.predict_signal(plan, dummy_features, db)
     return {"plan": plan, "uri": uri, "signal": signal}
@@ -56,6 +57,6 @@ async def promote_model(
     win_rate = float(payload.get("win_rate", 0))
     if not plan or not uri:
         raise HTTPException(status_code=400, detail="plan and uri are required")
-    version = await register_model_version(plan, uri, sharpe, win_rate)
+    version = await register_model_version(plan, uri, sharpe, win_rate, db)
     ml_model_service.load_model.cache_clear()
     return {"id": version.id, "plan": version.plan, "uri": version.uri}

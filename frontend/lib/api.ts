@@ -70,4 +70,29 @@ export const dashboardApi = {
   },
 };
 
+export const billingApi = {
+  async status() {
+    return apiFetch<{
+      plan: string;
+      upgraded_at: string | null;
+      enterprise_requested: boolean;
+      last_payment_id: string | null;
+      last_payment_status: string | null;
+    }>(`/api/v1/billing/status`, { auth: true });
+  },
+  async createCheckout(plan: "pro" | "enterprise") {
+    return apiFetch<{ init_point: string; plan: string }>(`/api/v1/billing/create-checkout`, {
+      method: "POST",
+      auth: true,
+      body: JSON.stringify({ plan }),
+    });
+  },
+  async requestEnterprise() {
+    return apiFetch<{ success: boolean; enterprise_requested: boolean }>(`/api/v1/billing/request-enterprise`, {
+      method: "POST",
+      auth: true,
+    });
+  },
+};
+
 export const WS_URL = process.env.NEXT_PUBLIC_API_WS_URL || "ws://localhost:8000";

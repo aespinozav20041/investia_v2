@@ -1,6 +1,7 @@
 import json
 import random
 from datetime import datetime
+from uuid import uuid4
 from typing import Any, Dict
 
 from redis.asyncio import Redis
@@ -11,7 +12,6 @@ from app.models.trading import Trade
 from app.models.user import PlanEnum, User
 from app.services.data_ingestion_service import data_ingestion_service
 from app.services.ml_model_service import ml_model_service
-from ml import utils
 
 
 class TradingEngine:
@@ -87,7 +87,7 @@ class TradingEngine:
             "explanation": explanation,
             "created_at": datetime.utcnow(),
         }
-        return {"trade": trade_data, "features": features, "signal": signal}
+        return {"trade": trade_data, "features": features, "signal": signal, "event_id": str(uuid4())}
 
     async def record_trade(self, db: AsyncSession, trade_data: dict) -> Trade:
         trade = Trade(**trade_data)

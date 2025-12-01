@@ -1,12 +1,19 @@
 import asyncio
+import sys
 from datetime import datetime
+from pathlib import Path
 
 import xgboost as xgb
 from sklearn.model_selection import TimeSeriesSplit
 
-from app.core.database import AsyncSessionLocal
-from ml import utils
-from ml.model_registry import register_model_version
+CURRENT_DIR = Path(__file__).resolve().parent
+BACKEND_DIR = CURRENT_DIR.parent
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.append(str(BACKEND_DIR))
+
+from app.core.database import AsyncSessionLocal  # noqa: E402
+from ml import utils  # noqa: E402
+from ml.model_registry import register_model_version  # noqa: E402
 
 SYMBOL = "BTC-USD"
 INTERVAL = "1d"

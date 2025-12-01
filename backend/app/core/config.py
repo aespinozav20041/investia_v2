@@ -20,12 +20,21 @@ class Settings(BaseSettings):
         "https://investia.live",
         "https://www.investia.live",
         "https://api.investia.live",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
     ]
 
     ENCRYPTION_SECRET_KEY: str = Field(..., description="Key used to encrypt broker secrets")
 
     MODEL_PROVIDER: str = "openai"
     MODEL_NAME: str = "gpt-4.1-mini"
+    OPENAI_API_KEY: str | None = None
+
+    MERCADOPAGO_ACCESS_TOKEN: str = Field(..., description="Mercado Pago server token")
+    MERCADOPAGO_PUBLIC_KEY: str = Field(..., description="Mercado Pago public key")
+    MERCADOPAGO_WEBHOOK_TOKEN: str = Field(..., description="Webhook secret token")
+    FRONTEND_URL: AnyHttpUrl = "https://investia.live"
+    BACKEND_URL: AnyHttpUrl = "https://api.investia.live"
 
     class Config:
         env_file = ".env"

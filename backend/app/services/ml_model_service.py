@@ -22,6 +22,9 @@ class MLModelService:
         uri = await get_latest_model_uri(plan_key, db_session=db)
         return uri
 
+    async def get_active_model_uri(self, plan: str, db: AsyncSession) -> str | None:
+        return await self.get_model_uri_for_plan(plan, db)
+
     def _normalize_plan(self, plan: str) -> str:
         if plan.lower() == PlanEnum.enterprise.value:
             return PlanEnum.enterprise.value
@@ -45,11 +48,14 @@ class MLModelService:
 
         return joblib.load(path)
 
+    # Alias matching requested naming
+    load_model_from_uri = load_model
+
     async def predict_signal(self, plan: str, feature_dict: dict[str, float], db: AsyncSession) -> int:
         plan_key = self._normalize_plan(plan)
         uri = await self.get_model_uri_for_plan(plan_key, db)
         if not uri:
-            score = feature_dict.get("sentiment_score", 0.0) * 0.6 + feature_dict.get("return_1d", 0)
+            score = feature_dict.get("sentiment_score", 0.0) * 0.6 + feature_dict.get("log_return", 0)
             return 1 if score >= 0 else 0
 
         model_obj = self.load_model(uri)
@@ -81,6 +87,9 @@ class MLModelService:
     async def generate_signal_for_user(self, user: User, feature_dict: dict[str, float], db: AsyncSession) -> int:
         plan_value = user.plan.value if isinstance(user.plan, PlanEnum) else str(user.plan)
         return await self.predict_signal(plan_value, feature_dict, db)
+
+    async def predict_signal_for_plan(self, plan: str, feature_dict: dict[str, float], db: AsyncSession) -> int:
+        return await self.predict_signal(plan, feature_dict, db)
 
 
 ml_model_service = MLModelService()

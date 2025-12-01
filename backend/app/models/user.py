@@ -20,4 +20,8 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
     plan = Column(PgEnum(PlanEnum), default=PlanEnum.free, nullable=False)
+    upgraded_at = Column(DateTime(timezone=True), nullable=True)
+    enterprise_requested = Column(Boolean, default=False, nullable=False)
+    last_payment_id = Column(String, nullable=True)
+    last_payment_status = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

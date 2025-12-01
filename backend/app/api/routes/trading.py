@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,7 +20,7 @@ async def get_signal(
     signal = await ml_model_service.generate_signal_for_user(current_user, features, db)
     side = "buy" if signal == 1 else ("sell" if signal == -1 else "flat")
     return {
-        "plan": getattr(current_user, "plan", "free"),
+        "plan_used": getattr(current_user.plan, "value", current_user.plan),
         "symbol": symbol,
         "side": side,
         "price": round(features.get("price", 0.0), 4),
